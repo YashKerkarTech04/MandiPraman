@@ -1,4 +1,4 @@
-# Mandi Price Board
+# MandiPraman
 
 Crowd-sourced, tamper-evident crop prices for Indian mandis, built on **Arkiv** (Tiramisu testnet)
 for the Arkiv x Devcon 8 pre-Devcon challenge.
