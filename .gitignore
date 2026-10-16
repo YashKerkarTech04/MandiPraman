@@ -1,0 +1,19 @@
+# secrets: NEVER commit these
+.env
+.env.*
+!.env.example
+
+# dependencies and build output
+node_modules/
+dist/
+build/
+.vite/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+arkiv/friction.md
