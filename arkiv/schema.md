@@ -64,5 +64,6 @@ Expiry: `ExpirationTime.atBlock(report.expiresAt, { atLeast: fromSeconds(30) })`
 
 ## Honest limitations
 
-- A relayer wallet signs all writes so farmers need no crypto wallet. This centralises *who submits*, not *what is stored*: entities stay public, queryable and un-editable by us after the fact, and `$creator` is verifiable. A per-user wallet or account-abstraction flow is the production path.
+- A relayer wallet signs all writes so farmers need no crypto wallet. This centralises *who submits*, not *what is stored*. Every entity is created with the `readonly` flag, so nobody, including the relayer that owns it, can patch a report after posting. The relayer could still **delete** an entity, but a delete is itself a public transaction visible in the explorer. `$creator` is verifiable. A per-user wallet or account-abstraction flow is the production path.
+- `npm run prove-readonly` (backend) creates a readonly entity and shows the owner's patch being rejected.
 - Pseudonymous voter ids are not Sybil-resistant. The median is the defence, since one bad report cannot move it much.

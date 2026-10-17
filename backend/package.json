@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "wallet": "tsx scripts/gen-wallet.ts",
     "hello": "tsx scripts/hello.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "prove-readonly": "tsx scripts/readonly-proof.ts",
+    "probe": "tsx scripts/friction-probe.ts"
   },
   "dependencies": {
     "@arkiv-network/sdk": "^0.8.0",
