@@ -3,7 +3,7 @@
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 
 const privateKey = generatePrivateKey()
-const account = privateKeyToAccount(privateKey)
+const account = privateKeyToAccount(privateKey) //for fetching the wallet address.
 
 console.log("\nNew testnet relayer wallet\n")
 console.log("Address     :", account.address)

@@ -9,7 +9,6 @@ export const LANGS: { code: Lang; label: string; full: string }[] = [
 ]
 
 const en = {
-  appName: "Mandi Mitra",
   tagline: "Crop prices posted by farmers and traders, kept on Arkiv where they cannot be quietly changed.",
   demoBanner: "Demo data: the prices shown are synthetic, made for this hackathon demo.",
   allCrops: "All crops",
@@ -67,7 +66,6 @@ const en = {
 type Dict = typeof en
 
 const hi: Dict = {
-  appName: "मंडी मित्र",
   tagline: "किसानों और व्यापारियों द्वारा दर्ज फसल भाव। Arkiv पर सुरक्षित, इसलिए कोई चुपचाप बदल नहीं सकता।",
   demoBanner: "डेमो डेटा: दिखाए गए भाव नकली (सिंथेटिक) हैं, केवल हैकाथॉन डेमो के लिए।",
   allCrops: "सभी फसलें",
@@ -123,7 +121,6 @@ const hi: Dict = {
 }
 
 const mr: Dict = {
-  appName: "मंडी मित्र",
   tagline: "शेतकरी आणि व्यापाऱ्यांनी नोंदवलेले पीक भाव. Arkiv वर सुरक्षित, त्यामुळे कोणीही शांतपणे बदलू शकत नाही.",
   demoBanner: "डेमो डेटा: दाखवलेले भाव कृत्रिम (सिंथेटिक) आहेत, फक्त हॅकेथॉन डेमोसाठी.",
   allCrops: "सर्व पिके",

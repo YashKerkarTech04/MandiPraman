@@ -6,7 +6,7 @@ import { config } from "../config"
 
 // RPC_URL (with an Arkiv access key appended) is optional. http(undefined) falls back to the
 // public Tiramisu RPC, which is heavily rate limited.
-const transport = () => http(config.RPC_URL)
+const transport = () => http(config.RPC_URL, { timeout: 15_000, retryCount: 2 })
 
 export const publicClient = createPublicClient({
   chain: tiramisu,

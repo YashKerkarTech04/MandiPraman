@@ -3,7 +3,7 @@ import { bool, dec, key as keyAttr, str, u64 } from "@arkiv-network/sdk/attr"
 import { and, eq, gte } from "@arkiv-network/sdk/query"
 import { config } from "../config"
 import { HttpError } from "./errors"
-import { enqueueWrite, publicClient, walletClient } from "./arkiv"
+import { account, enqueueWrite, publicClient, walletClient } from "./arkiv"
 import { clearCache } from "./cache"
 import { isTrusted } from "./stats"
 import {
@@ -74,6 +74,8 @@ export function reportCreateParams(r: NewReport) {
       synthetic: bool(Boolean(r.synthetic)),
     },
     expires: ExpirationTime.fromHours(config.REPORT_TTL_HOURS),
+    // Frozen after posting: attributes and payload can never be patched, even by the relayer.
+    flags: { readonly: true },
   }
 }
 
@@ -93,7 +95,12 @@ export async function createVote(reportKey: Hex, verdict: Verdict, voterId: stri
   }
 
   const attrs = report.attributes as AttrMap
-  if (readStr(attrs, "type") !== TYPE_REPORT || readStr(attrs, "project") !== config.PROJECT_ID) {
+  if (
+    readStr(attrs, "type") !== TYPE_REPORT ||
+    readStr(attrs, "project") !== config.PROJECT_ID ||
+    String(report.creator ?? "").toLowerCase() !== account.address.toLowerCase()
+  ) {
+    // Anyone can copy our `project` tag onto their own entity. Nobody can forge `$creator`.
     throw new HttpError(404, "Not a price report of this app")
   }
   if (readStr(attrs, "reporter") === voterId) {
@@ -108,6 +115,7 @@ export async function createVote(reportKey: Hex, verdict: Verdict, voterId: stri
       eq("report_key", keyAttr(reportKey)),
       eq("voter", str(voterId)),
     )
+    .createdBy(account.address)
     .limit(1)
     .fetch()
   if (existing.entities.length > 0) throw new HttpError(409, "You already voted on this report")
@@ -131,6 +139,7 @@ export async function createVote(reportKey: Hex, verdict: Verdict, voterId: stri
         voted_at_ms: u64(Date.now()),
       },
       expires,
+      flags: { readonly: true },
     }),
   )
   clearCache()
@@ -156,6 +165,7 @@ export async function listReports(filter: ReportFilter = {}): Promise<{ reports:
   let page = await publicClient
     .select({ key: true, attributes: true, payload: true, expiresAt: true })
     .where(and(filters))
+    .createdBy(account.address) // only records written by our relayer count; `$creator` cannot be forged
     .limit(200)
     .fetch()
 
@@ -168,12 +178,17 @@ export async function listReports(filter: ReportFilter = {}): Promise<{ reports:
 
   const votes = await countVotes()
 
-  const reports: ReportDTO[] = rows.map((e) => {
+  const reports: ReportDTO[] = rows.flatMap((e) => {
+    let payload: Partial<ReportPayload>
+    try {
+      payload = e.toJson() as Partial<ReportPayload>
+    } catch {
+      return [] // malformed payload: skip this record instead of breaking the whole board
+    }
     const a = e.attributes as AttrMap
-    const payload = e.toJson() as Partial<ReportPayload>
     const tally = votes.get(String(e.key).toLowerCase()) ?? { confirm: 0, dispute: 0 }
     const blocksLeft = Number(e.expiresAt - blockNumber)
-    return {
+    return [{
       key: e.key,
       crop: readStr(a, "crop"),
       mandi: readStr(a, "mandi"),
@@ -188,7 +203,7 @@ export async function listReports(filter: ReportFilter = {}): Promise<{ reports:
       disputes: tally.dispute,
       trusted: isTrusted(tally.confirm, tally.dispute),
       synthetic: readBool(a, "synthetic"),
-    }
+    }]
   })
 
   // The node returns newest-created first; make "newest reported" explicit.
@@ -201,6 +216,7 @@ async function countVotes() {
   let page = await publicClient
     .select({ attributes: true })
     .where(eq("project", str(config.PROJECT_ID)), eq("type", str(TYPE_VOTE)))
+    .createdBy(account.address)
     .limit(200)
     .fetch()
 

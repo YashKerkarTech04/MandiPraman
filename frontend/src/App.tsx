@@ -85,9 +85,8 @@ export default function App() {
     <>
       <header className="topbar">
         <div className="topbar-inner">
-          <a className="brand" href="/" aria-label={t("appName")}>
-            <span className="logo" aria-hidden="true">₹</span>
-            <span>{t("appName")}</span>
+          <a className="brand" href="/" aria-label="Mandi Praman">
+            <img className="brand-logo" src="/images/MandiPraman-Logo.png" alt="Mandi Praman" />
           </a>
           <div className="lang" role="group" aria-label="Language">
             {LANGS.map((l) => (
